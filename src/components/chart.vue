@@ -212,7 +212,7 @@
                 return [deltaBox, price];
             },
             resizeChart(){
-                const parentWidth = this.$refs.chart.parentNode.getBoundingClientRect().width - 30;
+                const parentWidth = this.$refs.chart.parentNode.getBoundingClientRect().width;
                 this.chart.applyOptions({ width: parentWidth, height: Math.max(0.3 * parentWidth, 300)})
             }
         },

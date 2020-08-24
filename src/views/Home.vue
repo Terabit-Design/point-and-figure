@@ -18,11 +18,7 @@
             </b-row>
         </b-container>
     </header>
-    <b-row>
-        <b-col cols="12">   
-            <chart :priceData="priceData" ref="chart"></chart>
-        </b-col>
-    </b-row>
+    <chart :priceData="priceData" ref="chart"></chart>
   </div>
 </template>
 
