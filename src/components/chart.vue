@@ -69,20 +69,18 @@
                     const time = bar.time;
                     candlestickData.push({high,low,open,close,time});
                 })
-                this.series.setData(candlestickData);
-                this.chart.timeScale().setVisibleRange({
-                    from: this.bars.minDate,
-                    to: this.bars.maxDate,
-                });
+                if(candlestickData.length > 0){
+                    this.series.setData(candlestickData);
+                    this.chart.timeScale().setVisibleRange({
+                        from: this.bars.minDate,
+                        to: this.bars.maxDate,
+                    });
+                }
             },
             addPriceDataPoint(){
                 const priceData = [...arguments];
-                let addSuccess = true;
-                for(const i in priceData){
-                    const price = priceData[i];
-                    // If price's date is greater than the current max, then continue to add date to the current graph
-                    // Else if date is less than current max date, reset the graph, sort the data by date, and regraph the data
-                    // Ignore date values of a duplicate timestamp to the maxDate
+                priceData.forEach((price)=>{
+                    // Ignore prices with a timestamp less that the current max timestamp
                     if(price.date > this.bars.maxDate){
                         this.bars.maxDate = price.date;
                         // Initialize minDate to that of the first price record received
@@ -164,7 +162,7 @@
                             this.bars.data.push({
                                 "direction":(this.priceDirection < 0) ? "O" : "X",
                                 "prices": [],
-
+                                "time":price.date
                             });
                         }
                         if(this.bars.data.length > 0){
@@ -182,29 +180,8 @@
                             }
                         }
                         this.prices[price.date] = price;
-                    }else if(price.date < this.bars.maxDate){
-                        priceData.forEach((price)=>{
-                            // Collect all prices and filter out duplicates
-                            if(!(price.date in this.prices)){
-                                this.prices[price.date] = price;
-                            }
-                        })
-                        // Sort all price data by date ascending
-                        const sortedPrices = Object.values(this.prices).sort((a,b) => a.date < b.date);
-                        this.resetGraph();
-                        this.addPriceDataPoint(...sortedPrices);
-                        addSuccess = false;
-                        break;
                     }
-                }
-                if(addSuccess){
-                    const deltaTime = this.bars.maxDate - this.bars.minDate;
-                    // If timePerBar is NaN => only one bar so default to 0
-                    const timePerBar = (deltaTime / (this.bars.data.length - 1)) || 0;
-                    this.bars.data.forEach((data, i)=>{
-                        data.time = this.bars.minDate + i * timePerBar;
-                    })
-                }
+                })
                 this.graphData();
             },
             getCurrentBoxPrice(price){
@@ -233,12 +210,14 @@
                     }
                 }
                 return [deltaBox, price];
+            },
+            resizeChart(){
+                const parentWidth = this.$refs.chart.parentNode.getBoundingClientRect().width - 30;
+                this.chart.applyOptions({ width: parentWidth, height: Math.max(0.3 * parentWidth, 300)})
             }
         },
         mounted(){
             this.chart = createChart(this.$refs.chart, { 
-                width: 400, 
-                height: 300,
                 layout: {
                     backgroundColor: '#131822',
                     textColor: 'rgba(255, 255, 255, 0.9)',
@@ -250,6 +229,8 @@
                     visible:true
                 }
             });
+            this.resizeChart();
+            window.addEventListener("resize",this.resizeChart);
             this.series = this.chart.addCandlestickSeries({
                 upColor: '#469e4b',
                 downColor: '#77313d',
