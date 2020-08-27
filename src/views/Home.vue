@@ -3,10 +3,10 @@
     <header class="main-header">
         <b-container fluid>
             <b-row align-h="around" align-v="center">
-                <b-col cols="11" md="4" lg="6">
+                <b-col cols="11" md="4" lg="5">
                     <ticker-search-bar class="ticker-search-bar"></ticker-search-bar>
                 </b-col>
-                <b-col cols="11" md="7" lg="6">
+                <b-col cols="11" md="7" lg="7">
                     <div class="header-button-row">
                         <button 
                             :class="{'header-button-row-button':true,'active':range.value == selectedRange}" 
@@ -18,6 +18,28 @@
             </b-row>
         </b-container>
     </header>
+    <b-container fluid>
+        <b-row align-h="center" align-v="center"  class="box-sizing-container">
+            <b-col cols="11" md="3" order="1">
+                <section>
+                    <label>Sizing Method</label>
+                    <b-form-select v-model="selectedBoxSizingModel" :options="boxSizingList"></b-form-select>
+                </section>
+            </b-col>
+             <b-col cols="11" md="3" order="2" order-md="3">
+                <section v-show="selectedBoxSizingModel != 'traditional'">
+                    <label>{{boxSizeValueLabel[selectedBoxSizingModel]}}</label>
+                    <b-form-input v-model="selectedBoxSizeValue" placeholder="Number of days" type="number" class="box-input"></b-form-input>
+                </section>
+             </b-col>
+            <b-col cols="11" md="3" order="3" order-md="2">
+                <section>
+                    <label>Number of boxes for a reversal</label>
+                    <b-form-input v-model="reversalBoxCount" placeholder="Number of boxes for a reversal" type="number" class="box-input"></b-form-input>
+                </section>
+            </b-col>
+        </b-row>
+    </b-container>
     <chart :priceData="priceData" ref="chart"></chart>
   </div>
 </template>
@@ -45,7 +67,19 @@ export default {
                 {text:"5 years", value:"5y"},
                 {text:"Max", value:"max"},
             ],
-            selectedRange:'1m'
+            boxSizingList:[
+                {"text":"Traditional",value:"traditional"},
+                {"text":"Dynamic (ATR)", value:"atr"}
+            ],
+            boxSizeValueLabel:{
+                atr:"Number of Days",
+            },
+            selectedRange:'1m',
+            selectedBoxSizingModel:"traditional",
+            selectedBoxSizeValue:null,
+            boxSizeValueDebounce:null,
+            reversalBoxCountDebounce:null,
+            reversalBoxCount:3,
         }
     },
     methods:{
@@ -62,13 +96,14 @@ export default {
                 if(record.minute){
                     dateArray.push(...record.minute.split(':'))
                 }
-                const timestamp = new Date(...dateArray).getTime() / 1000;
+                const timestamp = new Date(...dateArray).getTime();
                 const responseObject = {
                     date: timestamp,
                     high: record.high,
-                    low: record.low
+                    low: record.low,
+                    close: record.close
                 }
-                if(responseObject.high && responseObject.low){
+                if(responseObject.high && responseObject.low && responseObject.close){
                     responseArray.push(responseObject);
                 }
             });
@@ -78,6 +113,7 @@ export default {
             if(this.ticker.length > 0){ 
                 const data = await this.getTickerData(this.ticker, this.selectedRange);
                 this.$refs.chart.resetGraph();
+                await this.$nextTick();
                 this.$refs.chart.addPriceDataPoint(...data)
             }
         }
@@ -93,7 +129,31 @@ export default {
         },
         selectedRange(){
             this.loadChartData();
-        }
+        },
+        selectedBoxSizingModel(model){
+            this.$store.commit('setValue',{"selectedBoxSizingModel":model});
+            if(model=="traditional" || this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0 && this.reversalBoxCount && parseFloat(this.reversalBoxCount) > 0){
+                this.loadChartData();
+            }
+        },
+        selectedBoxSizeValue(value){
+            clearTimeout(this.boxSizeValueDebounce);
+            this.boxSizeValueDebounce = setTimeout(()=>{
+                this.$store.commit('setValue',{"selectedBoxSizeValue":parseFloat(value)});
+                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.reversalBoxCount && parseFloat(this.reversalBoxCount) > 0){
+                    this.loadChartData();
+                } 
+            },300);
+        },
+        reversalBoxCount(value){
+            clearTimeout(this.reversalBoxCountDebounce);
+            this.reversalBoxCountDebounce = setTimeout(()=>{
+                this.$store.commit('setValue',{"reversalBoxCount":parseFloat(value)});
+                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0){
+                    this.loadChartData();
+                } 
+            },300);
+        },
     }
 }
 </script>
@@ -116,8 +176,15 @@ export default {
             width: 100%;
         }
     }
+    .header-button-row{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
     .header-button-row-button{
         all:unset;
+        white-space: nowrap;
         cursor: pointer;
         margin: 1%;
         padding: 1%;
@@ -134,5 +201,11 @@ export default {
         &:focus{
             outline: none;
         }
+    }
+    .box-sizing-container{
+        margin: 1% 0;
+    }
+    .box-input::placeholder{
+        color: #AAA !important;
     }
 </style>

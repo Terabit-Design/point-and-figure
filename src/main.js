@@ -9,6 +9,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.use(BootstrapVue)
 Vue.config.productionTip = false
+import VueWorker from 'vue-worker'
+Vue.use(VueWorker)
+
 
 new Vue({
   router,
