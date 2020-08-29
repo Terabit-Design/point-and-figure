@@ -20,19 +20,45 @@
     </header>
     <b-container fluid>
         <b-row align-h="center" align-v="center"  class="box-sizing-container">
-            <b-col cols="11" md="3" order="1">
+            <b-col cols="11" lg="3" order="1">
                 <section>
                     <label>Sizing Method</label>
                     <b-form-select v-model="selectedBoxSizingModel" :options="boxSizingList"></b-form-select>
                 </section>
             </b-col>
-             <b-col cols="11" md="3" order="2" order-md="3">
-                <section v-show="selectedBoxSizingModel != 'traditional'">
+             <b-col cols="11" lg="6" order="2" order-lg="3">
+                <section>
                     <label>{{boxSizeValueLabel[selectedBoxSizingModel]}}</label>
-                    <b-form-input v-model="selectedBoxSizeValue" placeholder="Number of days" type="number" class="box-input"></b-form-input>
+                    <div v-if="selectedBoxSizingModel == 'traditional'">
+                        <b-row align-h="center">
+                            <b-col>
+                                <span class="traditional-price-label">$0-5</span>
+                                <b-form-input v-model.number="traditionalBoxSizes[0].size" type="number" class="box-input"></b-form-input>
+                            </b-col>
+                            <b-col>
+                                <span class="traditional-price-label">$5-20</span>
+                                <b-form-input v-model.number="traditionalBoxSizes[1].size" type="number" class="box-input"></b-form-input>
+                            </b-col>
+                            <b-col>
+                                <span class="traditional-price-label">$20-100</span>
+                                <b-form-input v-model.number="traditionalBoxSizes[2].size" type="number" class="box-input"></b-form-input>
+                            </b-col>
+                            <b-col>
+                                <span class="traditional-price-label">$100-200</span>
+                                <b-form-input v-model.number="traditionalBoxSizes[3].size" type="number" class="box-input"></b-form-input>
+                            </b-col>
+                            <b-col>
+                                <span class="traditional-price-label">$200+</span>
+                                <b-form-input v-model.number="traditionalBoxSizes[4].size" type="number" class="box-input"></b-form-input>
+                            </b-col>
+                        </b-row>
+                    </div>
+                    <div v-else>
+                        <b-form-input v-model="selectedBoxSizeValue" placeholder="Number of days" type="number" class="box-input"></b-form-input>
+                    </div>
                 </section>
              </b-col>
-            <b-col cols="11" md="3" order="3" order-md="2">
+            <b-col cols="11" lg="3" order="3" order-lg="2">
                 <section>
                     <label>Number of boxes for a reversal</label>
                     <b-form-input v-model="reversalBoxCount" placeholder="Number of boxes for a reversal" type="number" class="box-input"></b-form-input>
@@ -69,17 +95,46 @@ export default {
             ],
             boxSizingList:[
                 {"text":"Traditional",value:"traditional"},
-                {"text":"Dynamic (ATR)", value:"atr"}
+                {"text":"Dynamic (ATR)", value:"atr"},
             ],
             boxSizeValueLabel:{
                 atr:"Number of Days",
+                traditional:"Box size at price"
             },
             selectedRange:'1m',
             selectedBoxSizingModel:"traditional",
             selectedBoxSizeValue:null,
             boxSizeValueDebounce:null,
+            traditionalBoxSizesDebounce:null,
             reversalBoxCountDebounce:null,
             reversalBoxCount:3,
+            traditionalBoxSizes:[
+                {
+                    min: 0,
+                    max: 5,
+                    size: 0.25
+                },
+                {
+                    min: 5,
+                    max: 20,
+                    size: 0.5,
+                },
+                {
+                    min: 20,
+                    max: 100,
+                    size: 1
+                },
+                {
+                    min: 100,
+                    max: 200,
+                    size: 2
+                },
+                {
+                    min: 200,
+                    max: Infinity,
+                    size: 4
+                },
+            ],
         }
     },
     methods:{
@@ -154,6 +209,21 @@ export default {
                 } 
             },300);
         },
+        traditionalBoxSizes:{
+            deep:true,
+            handler(value){
+                clearTimeout(this.traditionalBoxSizesDebounce);
+                this.traditionalBoxSizesDebounce = setTimeout(()=>{
+                    console.log(JSON.parse(JSON.stringify(this.$store.state.traditionalBoxSizes)));
+                    this.$store.commit('setValue',{"traditionalBoxSizes":value});
+                    console.log(JSON.parse(JSON.stringify(this.$store.state.traditionalBoxSizes)));
+                    if(this.selectedBoxSizingModel=="traditional" && this.traditionalBoxSizes.every((box)=>box.size > 0)){
+                        this.loadChartData();
+                    }
+                },300)
+            }
+
+        }
     }
 }
 </script>
@@ -207,5 +277,8 @@ export default {
     }
     .box-input::placeholder{
         color: #AAA !important;
+    }
+    .traditional-price-label{
+        white-space: nowrap;
     }
 </style>

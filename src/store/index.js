@@ -10,7 +10,34 @@ export default new Vuex.Store({
     iexMode:"sandbox",
     selectedBoxSizingModel:"traditional",
     selectedBoxSizeValue:null,
-    reversalBoxCount:3
+    reversalBoxCount:3,
+    traditionalBoxSizes:[
+      {
+          min: 0,
+          max: 5,
+          size: 0.25
+      },
+      {
+          min: 5,
+          max: 20,
+          size: 0.5,
+      },
+      {
+          min: 20,
+          max: 100,
+          size: 1
+      },
+      {
+          min: 100,
+          max: 200,
+          size: 2
+      },
+      {
+          min: 200,
+          max: Infinity,
+          size: 4
+      },
+    ],
   },
   mutations: {
     setValue(state, payload){

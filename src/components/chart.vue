@@ -25,33 +25,6 @@
                 series:null,
                 bars:null,
                 prices:null,
-                defaultBoxSizes:[
-                    {
-                        min: 0,
-                        max: 5,
-                        size: 0.25
-                    },
-                    {
-                        min: 5,
-                        max: 20,
-                        size: 0.5,
-                    },
-                    {
-                        min: 20,
-                        max: 100,
-                        size: 1
-                    },
-                    {
-                        min: 100,
-                        max: 200,
-                        size: 2
-                    },
-                    {
-                        min: 200,
-                        max: Infinity,
-                        size: 4
-                    },
-                ],
                 currentHigh: null,
                 currentLow: null,
                 priceDirection:0,
@@ -338,7 +311,7 @@
                         return atr;
                     }
                 }
-                return this.defaultBoxSizes.find((box)=>price >= box.min && price < box.max).size; 
+                return this.$store.state.traditionalBoxSizes.find((box)=>price >= box.min && price < box.max).size; 
             },
             // Calculate how many boxes are in between two prices
             getBoxChange(currentPrice, newPrice, i){
