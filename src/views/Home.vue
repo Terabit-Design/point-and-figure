@@ -20,7 +20,7 @@
     </header>
     <b-container fluid>
         <b-row align-h="center" align-v="center"  class="box-sizing-container">
-            <b-col cols="11" lg="3" order="1">
+            <b-col cols="11" lg="2" order="1">
                 <section>
                     <label>Sizing Method</label>
                     <b-form-select v-model="selectedBoxSizingModel" :options="boxSizingList"></b-form-select>
@@ -58,10 +58,16 @@
                     </div>
                 </section>
              </b-col>
-            <b-col cols="11" lg="3" order="3" order-lg="2">
+            <b-col cols="11" lg="2" order="3" order-lg="2">
                 <section>
                     <label>Number of boxes for a reversal</label>
                     <b-form-input v-model="reversalBoxCount" placeholder="Number of boxes for a reversal" type="number" class="box-input"></b-form-input>
+                </section>
+            </b-col>
+            <b-col cols="11" lg="2" order="3" order-lg="2">
+                <section>
+                    <label>EMA Bar Range</label>
+                    <b-form-input v-model="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
                 </section>
             </b-col>
         </b-row>
@@ -107,7 +113,9 @@ export default {
             boxSizeValueDebounce:null,
             traditionalBoxSizesDebounce:null,
             reversalBoxCountDebounce:null,
+            emaBarCountDebounce:null,
             reversalBoxCount:3,
+            emaBarCount:2,
             traditionalBoxSizes:[
                 {
                     min: 0,
@@ -204,6 +212,15 @@ export default {
             clearTimeout(this.reversalBoxCountDebounce);
             this.reversalBoxCountDebounce = setTimeout(()=>{
                 this.$store.commit('setValue',{"reversalBoxCount":parseFloat(value)});
+                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0){
+                    this.loadChartData();
+                } 
+            },300);
+        },
+        emaBarCount(value){
+            clearTimeout(this.emaBarCountDebounce);
+            this.emaBarCountDebounce = setTimeout(()=>{
+                this.$store.commit('setValue',{"emaBarCount":parseFloat(value)});
                 if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0){
                     this.loadChartData();
                 } 

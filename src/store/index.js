@@ -11,6 +11,7 @@ export default new Vuex.Store({
     selectedBoxSizingModel:"traditional",
     selectedBoxSizeValue:null,
     reversalBoxCount:3,
+    emaBarCount:2,
     traditionalBoxSizes:[
       {
           min: 0,

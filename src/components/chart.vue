@@ -71,7 +71,13 @@
                 const tickvals = []
                 const ticktext = []
                 const layout = this.layout;
+                
                 this.layout = null;
+                const emaTraditional = [];
+                const emaLow = [];
+                const emaHigh = [];
+                const pivotPoints = [];
+
                 // Set the horizontal symbol width as the box size at max price
                 const barWidth = this.bars.maxPrice.size;
                 let currYear = Number.MIN_SAFE_INTEGER;
@@ -87,6 +93,12 @@
                             label += ` ${currYear}`;
                         }
                     }
+
+                    emaTraditional[i] = bar.meta.emaTraditional;
+                    emaLow[i] = bar.meta.emaLow;
+                    emaHigh[i] = bar.meta.emaHigh;
+                    pivotPoints[i] = bar.meta.pivotPoint;
+
                     ticktext.push(label);
                     const barPrices = Object.keys(bar.prices);
                     for(let j = 0; j < barPrices.length; j++){
@@ -98,50 +110,134 @@
                             "y1":price + bar.prices[price]
                         }
                         if(bar.direction == "O"){
-                            shapes.push({
-                                type: 'circle',
-                                xref: 'x',
-                                yref: 'y',
-                                x0: symbolCoords.x0,
-                                y0: symbolCoords.y0,
-                                x1: symbolCoords.x1,
-                                y1: symbolCoords.y1,
-                                line: {
-                                    color:'#DC7A85',
-                                    width: 1
-                                }
-                            })
+                            if(price <= pivotPoints[i]){
+                                shapes.push({
+                                    type: 'circle',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#DC7A85',
+                                        width: 1
+                                    }
+                                })
+                            }else{
+                                shapes.push({
+                                    type: 'circle',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#32ab60',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            
                         }else{
                             // Push two lines for X
-                            shapes.push({
-                                type: 'line',
-                                xref: 'x',
-                                yref: 'y',
-                                x0: symbolCoords.x0,
-                                y0: symbolCoords.y0,
-                                x1: symbolCoords.x1,
-                                y1: symbolCoords.y1,
-                                line: {
-                                    color:'#32ab60',
-                                    width: 1
-                                }
-                            })
-                            shapes.push({
-                                type: 'line',
-                                xref: 'x',
-                                yref: 'y',
-                                x0: symbolCoords.x0,
-                                y0: symbolCoords.y1,
-                                x1: symbolCoords.x1,
-                                y1: symbolCoords.y0,
-                                line: {
-                                    color:'#32ab60',
-                                    width: 1
-                                }
-                            })
+                            if(price <= pivotPoints[i]){
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#DC7A85',
+                                        width: 1
+                                    }
+                                })
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y1,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y0,
+                                    line: {
+                                        color:'#DC7A85',
+                                        width: 1
+                                    }
+                                })
+                            }else{
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#32ab60',
+                                        width: 1
+                                    }
+                                })
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y1,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y0,
+                                    line: {
+                                        color:'#32ab60',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            
                         }
                     }
                 }
+                const trace1 = {
+                    x: tickvals,
+                    y: emaTraditional,
+                    mode: 'lines',
+                    name: 'EMA',
+                    marker: {
+                        color: 'orange'
+                    }
+                };
+                const trace2 = {
+                    x: tickvals,
+                    y: emaLow,
+                    mode: 'lines',
+                    name: 'EMA Low',
+                    marker: {
+                        color: 'red'
+                    }
+                };
+                const trace3 = {
+                    x: tickvals,
+                    y: emaHigh,
+                    mode: 'lines',
+                    name: 'EMA High',
+                    marker: {
+                        color: 'lime'
+                    }
+                };
+                const trace4 = {
+                    x: tickvals,
+                    y: pivotPoints,
+                    mode: 'lines',
+                    name: 'Pivot Point',
+                    marker: {
+                        color: 'yellow'
+                    }
+                };
+                this.data = [trace1, trace2, trace3, trace4];
                 layout.shapes = shapes;
                 layout.xaxis.autorange = false;
                 layout.yaxis.autorange = false;
@@ -280,9 +376,67 @@
                             }
                         }));
                     }
-                    Promise.all(priceProcessing).then(this.graphData);
+                    Promise.all(priceProcessing).then(() => {
+                            this.calculateEma();
+                            this.graphData();
+
+                        });
                 })
                 
+            },
+            calculateEma(){
+                const barCount = this.$store.state.emaBarCount;
+                console.log(barCount);
+                const emaTraditional = [];
+                const emaLow = [];
+                const emaHigh = [];
+                const closePrices = [];
+                const lowPriceArray = [];
+                const highPriceArray = [];
+                const pivotPoints = [];
+                this.bars.data.forEach((bar, i) => {
+                    bar.meta = {};
+                    const prices = Object.keys(bar.prices);
+                    const priceArrayLength = prices.length;
+                    const priceLow = parseFloat(prices[0]);
+                    const priceHigh = parseFloat(prices[priceArrayLength - 1]);
+                    bar.meta.priceLow = priceLow;
+                    bar.meta.priceHigh = priceHigh;
+
+                    closePrices[i] = (bar.direction == "X") ? priceHigh : priceLow;
+                    lowPriceArray[i] = priceLow;
+                    highPriceArray[i] = priceHigh;
+
+                    const pivotPoint = (priceHigh + priceLow + closePrices[i]) / 3;
+                    pivotPoints[i] = pivotPoint;
+                    bar.meta.pivotPoint = pivotPoint;
+                });
+                const smoothing = 2 / (barCount + 1);
+                let smaClose = 0;
+                let smaLow = 0;
+                let smaHigh = 0;
+                // Calculating sma to use as initial ema value
+                for(let i = 0; i < barCount; i++){
+                    smaClose += closePrices[i];
+                    smaLow += lowPriceArray[i];
+                    smaHigh += highPriceArray[i];
+                }
+                emaTraditional[0] = smaClose / barCount;
+                emaLow[0] = smaLow / barCount;
+                emaHigh[0] = smaHigh / barCount;
+                // Calculating the remaining ema's for each bar
+                for(let i = 1; i < closePrices.length; i++){
+                    emaTraditional[i] = (closePrices[i] - emaTraditional[i - 1]) * smoothing + emaTraditional[i - 1];
+                    emaLow[i] = (lowPriceArray[i] - emaLow[i - 1]) * smoothing + emaLow[i - 1];
+                    emaHigh[i] = (highPriceArray[i] - emaHigh[i - 1]) * smoothing + emaHigh[i - 1];
+                }
+                // Transferring ema array data to metadata
+                this.bars.data.forEach((bar, i) => {
+                   bar.meta.emaTraditional = emaTraditional[i];
+                   bar.meta.emaLow = emaLow[i];
+                   bar.meta.emaHigh = emaHigh[i];
+                })
+                console.log(this.bars);
             },
             // Gets the nominal price for the box of a given price
             getCurrentBoxPrice(price){
