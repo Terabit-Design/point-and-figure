@@ -53,8 +53,11 @@
                             </b-col>
                         </b-row>
                     </div>
-                    <div v-else>
-                        <b-form-input v-model="selectedBoxSizeValue" placeholder="Number of days" type="number" class="box-input"></b-form-input>
+                    <div v-if="selectedBoxSizingModel == 'atr'">
+                        {{$store.state.atr}}
+                    </div>
+                    <div v-if="selectedBoxSizingModel == 'user'">
+                        <b-form-input v-model="selectedBoxSizeValue" placeholder = "Box Size (Dollars)" type="number" class="box-input"></b-form-input>
                     </div>
                 </section>
              </b-col>
@@ -102,10 +105,13 @@ export default {
             boxSizingList:[
                 {"text":"Traditional",value:"traditional"},
                 {"text":"Dynamic (ATR)", value:"atr"},
+                {"text":"User Defined", value:"user"
+                    },
             ],
             boxSizeValueLabel:{
-                atr:"Number of Days",
-                traditional:"Box size at price"
+                atr:"ATR Value",
+                traditional:"Box size at price",
+                user:"Box size"
             },
             selectedRange:'1m',
             selectedBoxSizingModel:"traditional",

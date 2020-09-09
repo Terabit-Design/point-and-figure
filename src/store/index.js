@@ -12,6 +12,7 @@ export default new Vuex.Store({
     selectedBoxSizeValue:null,
     reversalBoxCount:3,
     emaBarCount:2,
+    atr:null,
     traditionalBoxSizes:[
       {
           min: 0,

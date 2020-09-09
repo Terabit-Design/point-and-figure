@@ -446,9 +446,14 @@
             // Gets the size of a box for a given price
             getCurrentBoxSize(price){
                 const boxModel = this.$store.state.selectedBoxSizingModel;
-                const boxValue = this.$store.state.selectedBoxSizeValue;
-                if(boxValue > 0){  
+                let boxValue = this.$store.state.selectedBoxSizeValue;
+
+                if(boxValue > 0 || boxModel == 'atr'){ 
+                    if(boxModel=="user"){
+                        return boxValue;
+                    }
                     if(boxModel=="atr"){
+                        boxValue = 1;
                         let atr = 0;
                         let count = Math.min(this.prices.length, boxValue);
                         let prevClose;
@@ -461,7 +466,8 @@
                             prevClose = priceData.close;
                             atr += tr;
                         }
-                        Math.round(atr /= count);
+                        atr = Math.round(atr / count * 100) / 100;
+                        this.$store.commit("setValue", {atr});
                         return atr;
                     }
                 }
