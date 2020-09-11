@@ -241,8 +241,9 @@
                 layout.shapes = shapes;
                 layout.xaxis.autorange = false;
                 layout.yaxis.autorange = false;
-                layout.xaxis.range = [xOffset, xOffset + Math.max(this.bars.data.length * barWidth, barWidth*5)];
                 layout.yaxis.range = [this.bars.minPrice.price,this.bars.maxPrice.price];
+                const maxX = xOffset + this.bars.data.length * barWidth;
+                layout.xaxis.range = [maxX - (this.bars.maxPrice.price - this.bars.minPrice.price) - 37*barWidth, maxX];
                 layout.xaxis.ticktext = ticktext;
                 layout.xaxis.tickvals = tickvals;
                 await this.$nextTick();
