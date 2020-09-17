@@ -28,51 +28,46 @@
             </b-col>
              <b-col cols="11" lg="6" order="2" order-lg="3">
                 <section>
-                    <label>{{boxSizeValueLabel[selectedBoxSizingModel]}}</label>
-                    <div v-if="selectedBoxSizingModel == 'traditional'">
+                    <div v-if="selectedBoxSizingModel == 'atr'">
                         <b-row align-h="center">
                             <b-col>
-                                <span class="traditional-price-label">$0-5</span>
-                                <b-form-input v-model.number="traditionalBoxSizes[0].size" type="number" class="box-input"></b-form-input>
+                                <label>{{boxSizeValueLabel[selectedBoxSizingModel]}}</label>
+                                <div v-if="selectedBoxSizingModel == 'atr'">
+                                    <b-form-input v-model="atrLength" placeholder = "ATR Length (Bars)" type="number" class="box-input"></b-form-input>
+                                </div>
                             </b-col>
                             <b-col>
-                                <span class="traditional-price-label">$5-20</span>
-                                <b-form-input v-model.number="traditionalBoxSizes[1].size" type="number" class="box-input"></b-form-input>
-                            </b-col>
-                            <b-col>
-                                <span class="traditional-price-label">$20-100</span>
-                                <b-form-input v-model.number="traditionalBoxSizes[2].size" type="number" class="box-input"></b-form-input>
-                            </b-col>
-                            <b-col>
-                                <span class="traditional-price-label">$100-200</span>
-                                <b-form-input v-model.number="traditionalBoxSizes[3].size" type="number" class="box-input"></b-form-input>
-                            </b-col>
-                            <b-col>
-                                <span class="traditional-price-label">$200+</span>
-                                <b-form-input v-model.number="traditionalBoxSizes[4].size" type="number" class="box-input"></b-form-input>
+                                <label>ATR Value</label>
+                                <div v-if="selectedBoxSizingModel == 'atr'">
+                                {{$store.state.atr}}
+                                </div>
                             </b-col>
                         </b-row>
                     </div>
-                    <div v-if="selectedBoxSizingModel == 'atr'">
-                        {{$store.state.atr}}
-                    </div>
                     <div v-if="selectedBoxSizingModel == 'user'">
+                        <label>Box Size</label>
                         <b-form-input v-model="selectedBoxSizeValue" placeholder = "Box Size (Dollars)" type="number" class="box-input"></b-form-input>
                     </div>
                 </section>
              </b-col>
             <b-col cols="11" lg="2" order="3" order-lg="2">
                 <section>
-                    <label>Number of boxes for a reversal</label>
-                    <b-form-input v-model="reversalBoxCount" placeholder="Number of boxes for a reversal" type="number" class="box-input"></b-form-input>
+                    <b-row align-h="center">
+                        <b-col>
+                            <label>Boxes For a Reversal</label>
+                            <b-form-input v-model="reversalBoxCount" placeholder="Boxes for a reversal" type="number" class="box-input"></b-form-input>
+                        </b-col>
+                        <b-col>
+                            <label>EMA Length</label>
+                            <b-form-input v-model="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
+                        </b-col>
+                        <b-col>
+                            <label>Pivot Point Length</label>
+                            <b-form-input v-model="pivotCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
+                        </b-col>
+                    </b-row>
                 </section>
-            </b-col>
-            <b-col cols="11" lg="2" order="3" order-lg="2">
-                <section>
-                    <label>EMA Bar Range</label>
-                    <b-form-input v-model="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
-                </section>
-            </b-col>
+            </b-col>     
         </b-row>
     </b-container>
     <chart :priceData="priceData" ref="chart"></chart>
@@ -109,8 +104,7 @@ export default {
                     },
             ],
             boxSizeValueLabel:{
-                atr:"ATR Value",
-                traditional:"Box size at price",
+                atr:"ATR Length",
                 user:"Box size"
             },
             selectedRange:'1m',
@@ -120,8 +114,10 @@ export default {
             traditionalBoxSizesDebounce:null,
             reversalBoxCountDebounce:null,
             emaBarCountDebounce:null,
+            atrLength:1,
             reversalBoxCount:3,
             emaBarCount:2,
+            pivotCount: 3,
             traditionalBoxSizes:[
                 {
                     min: 0,

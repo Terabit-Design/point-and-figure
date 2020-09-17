@@ -387,6 +387,7 @@
             },
             calculateEma(){
                 const barCount = this.$store.state.emaBarCount;
+                const pivotCount = this.$store.state.pivotCount;
                 console.log(barCount);
                 const emaTraditional = [];
                 const emaLow = [];
@@ -407,11 +408,17 @@
                     closePrices[i] = (bar.direction == "X") ? priceHigh : priceLow;
                     lowPriceArray[i] = priceLow;
                     highPriceArray[i] = priceHigh;
-
-                    const pivotPoint = (priceHigh + priceLow + closePrices[i]) / 3;
-                    pivotPoints[i] = pivotPoint;
-                    bar.meta.pivotPoint = pivotPoint;
                 });
+                for (let i = 0; i < this.bars.data.length; i+=pivotCount){
+                    const lastClosePrice = closePrices.slice(i, i + pivotCount + 1).pop();
+                    const highestPrice = Math.max(...highPriceArray.slice(i, i + pivotCount + 1));
+                    const lowestPrice = Math.min(...lowPriceArray.slice(i, i + pivotCount + 1))
+                    const pivotPoint = (highestPrice + lowestPrice + lastClosePrice) / 3;
+                    for(let j = i; (j <= i + pivotCount) && (j < this.bars.data.length); j++){
+                        pivotPoints[j] = pivotPoint;
+                        this.bars.data[j].meta.pivotPoint = pivotPoint;
+                    }
+                }
                 const smoothing = 2 / (barCount + 1);
                 let smaClose = 0;
                 let smaLow = 0;
@@ -454,7 +461,7 @@
                         return boxValue;
                     }
                     if(boxModel=="atr"){
-                        boxValue = 1;
+                        boxValue = this.$store.state.atrLength;
                         let atr = 0;
                         let count = Math.min(this.prices.length, boxValue);
                         let prevClose;
