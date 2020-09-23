@@ -26,7 +26,7 @@
                     <b-form-select v-model="selectedBoxSizingModel" :options="boxSizingList"></b-form-select>
                 </section>
             </b-col>
-             <b-col cols="11" lg="6" order="2" order-lg="3">
+             <b-col cols="11" lg="4" order="2" order-lg="3">
                 <section>
                     <div v-if="selectedBoxSizingModel == 'atr'">
                         <b-row align-h="center">
@@ -50,18 +50,18 @@
                     </div>
                 </section>
              </b-col>
-            <b-col cols="11" lg="2" order="3" order-lg="2">
+            <b-col cols="11" lg="6" order="3" order-lg="2">
                 <section>
                     <b-row align-h="center">
-                        <b-col>
+                        <b-col cols="4">
                             <label>Boxes For a Reversal</label>
                             <b-form-input v-model="reversalBoxCount" placeholder="Boxes for a reversal" type="number" class="box-input"></b-form-input>
                         </b-col>
-                        <b-col>
+                        <b-col cols="4">
                             <label>EMA Length</label>
                             <b-form-input v-model="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
                         </b-col>
-                        <b-col>
+                        <b-col cols="4">
                             <label>Pivot Point Length</label>
                             <b-form-input v-model="pivotCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
                         </b-col>
