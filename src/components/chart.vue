@@ -110,7 +110,7 @@
                             "y1":price + bar.prices[price]
                         }
                         if(bar.direction == "O"){
-                            if(price <= pivotPoints[i]){
+                            if(price <= pivotPoints[i] && price >= emaLow[i]){
                                 shapes.push({
                                     type: 'circle',
                                     xref: 'x',
@@ -124,7 +124,8 @@
                                         width: 1
                                     }
                                 })
-                            }else{
+                            }
+                            else if(price <= pivotPoints[i] && price <= emaLow[i]){
                                 shapes.push({
                                     type: 'circle',
                                     xref: 'x',
@@ -134,7 +135,37 @@
                                     x1: symbolCoords.x1,
                                     y1: symbolCoords.y1,
                                     line: {
-                                        color:'#32ab60',
+                                        color:'#BE3242',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            else if(price >= pivotPoints[i] && price <= emaHigh[i]){
+                                shapes.push({
+                                    type: 'circle',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#9ADD95',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            else{
+                                shapes.push({
+                                    type: 'circle',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#1D8203',
                                         width: 1
                                     }
                                 })
@@ -142,7 +173,7 @@
                             
                         }else{
                             // Push two lines for X
-                            if(price <= pivotPoints[i]){
+                            if(price <= pivotPoints[i] && price >= emaLow[i]){
                                 shapes.push({
                                     type: 'line',
                                     xref: 'x',
@@ -169,7 +200,8 @@
                                         width: 1
                                     }
                                 })
-                            }else{
+                            }
+                            else if(price <= pivotPoints[i] && price <= emaLow[i]){
                                 shapes.push({
                                     type: 'line',
                                     xref: 'x',
@@ -179,7 +211,7 @@
                                     x1: symbolCoords.x1,
                                     y1: symbolCoords.y1,
                                     line: {
-                                        color:'#32ab60',
+                                        color:'#BE3242',
                                         width: 1
                                     }
                                 })
@@ -192,7 +224,63 @@
                                     x1: symbolCoords.x1,
                                     y1: symbolCoords.y0,
                                     line: {
-                                        color:'#32ab60',
+                                        color:'#BE3242',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            else if(price >= pivotPoints[i] && price <= emaHigh[i]){
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#9ADD95',
+                                        width: 1
+                                    }
+                                })
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y1,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y0,
+                                    line: {
+                                        color:'#9ADD95',
+                                        width: 1
+                                    }
+                                })
+                            }
+                            else if(price >= pivotPoints[i] && price >= emaHigh[i]){
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y0,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y1,
+                                    line: {
+                                        color:'#1D8203',
+                                        width: 1
+                                    }
+                                })
+                                shapes.push({
+                                    type: 'line',
+                                    xref: 'x',
+                                    yref: 'y',
+                                    x0: symbolCoords.x0,
+                                    y0: symbolCoords.y1,
+                                    x1: symbolCoords.x1,
+                                    y1: symbolCoords.y0,
+                                    line: {
+                                        color:'#1D8203',
                                         width: 1
                                     }
                                 })
@@ -388,7 +476,6 @@
             calculateEma(){
                 const barCount = this.$store.state.emaBarCount;
                 const pivotCount = this.$store.state.pivotCount;
-                console.log(barCount);
                 const emaTraditional = [];
                 const emaLow = [];
                 const emaHigh = [];
@@ -454,6 +541,7 @@
             // Gets the size of a box for a given price
             getCurrentBoxSize(price){
                 const boxModel = this.$store.state.selectedBoxSizingModel;
+                console.log(boxModel);
                 let boxValue = this.$store.state.selectedBoxSizeValue;
 
                 if(boxValue > 0 || boxModel == 'atr'){ 

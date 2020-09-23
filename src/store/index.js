@@ -8,7 +8,7 @@ export default new Vuex.Store({
     ticker:"",
     iexAPIKey:'Tpk_9951b4c0a965499f87e57c218a866e95',
     iexMode:"sandbox",
-    selectedBoxSizingModel:"traditional",
+    selectedBoxSizingModel:"user",
     selectedBoxSizeValue:null,
     reversalBoxCount:3,
     emaBarCount:2,
