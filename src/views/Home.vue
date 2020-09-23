@@ -26,7 +26,7 @@
                     <b-form-select v-model="selectedBoxSizingModel" :options="boxSizingList"></b-form-select>
                 </section>
             </b-col>
-             <b-col cols="11" lg="6" order="2" order-lg="3">
+             <b-col cols="11" lg="2" order="2" order-lg="3">
                 <section>
                     <div v-if="selectedBoxSizingModel == 'atr'">
                         <b-row align-h="center">
@@ -46,7 +46,7 @@
                     </div>
                     <div v-if="selectedBoxSizingModel == 'user'">
                         <label>Box Size</label>
-                        <b-form-input v-model="selectedBoxSizeValue" placeholder = "Box Size (Dollars)" type="number" class="box-input"></b-form-input>
+                        <b-form-input v-model.number="selectedBoxSizeValue" placeholder = "Box Size (Dollars)" type="number" class="box-input"></b-form-input>
                     </div>
                 </section>
              </b-col>
@@ -55,15 +55,15 @@
                     <b-row align-h="center">
                         <b-col>
                             <label>Boxes For a Reversal</label>
-                            <b-form-input v-model="reversalBoxCount" placeholder="Boxes for a reversal" type="number" class="box-input"></b-form-input>
+                            <b-form-input v-model.number="reversalBoxCount" placeholder="Boxes for a reversal" type="number" class="box-input"></b-form-input>
                         </b-col>
                         <b-col>
                             <label>EMA Length</label>
-                            <b-form-input v-model="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
+                            <b-form-input v-model.number="emaBarCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
                         </b-col>
                         <b-col>
                             <label>Pivot Point Length</label>
-                            <b-form-input v-model="pivotCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
+                            <b-form-input v-model.number="pivotCount" placeholder="Number of boxes" type="number" class="box-input"></b-form-input>
                         </b-col>
                     </b-row>
                 </section>
@@ -98,7 +98,7 @@ export default {
                 {text:"Max", value:"max"},
             ],
             boxSizingList:[
-                {"text":"Traditional",value:"traditional"},
+                // {"text":"Traditional",value:"traditional"},
                 {"text":"Dynamic (ATR)", value:"atr"},
                 {"text":"User Defined", value:"user"
                     },
@@ -108,16 +108,18 @@ export default {
                 user:"Box size"
             },
             selectedRange:'1m',
-            selectedBoxSizingModel:"traditional",
+            selectedBoxSizingModel:"user",
             selectedBoxSizeValue:null,
             boxSizeValueDebounce:null,
             traditionalBoxSizesDebounce:null,
             reversalBoxCountDebounce:null,
             emaBarCountDebounce:null,
+            atrLengthDebounce:null,
+            pivotCountDebounce:null,
             atrLength:1,
             reversalBoxCount:3,
             emaBarCount:2,
-            pivotCount: 3,
+            pivotCount:3,
             traditionalBoxSizes:[
                 {
                     min: 0,
@@ -175,7 +177,15 @@ export default {
             return responseArray;
         },
         async loadChartData(){
-            if(this.ticker.length > 0){ 
+            const dataValid = (this.selectedBoxSizeModel=="traditional" &&
+                this.traditionalBoxSizes.every((box)=>box.size > 0) || 
+                this.selectedBoxSizeValue && 
+                this.selectedBoxSizeValue > 0) &&
+                this.reversalBoxCount > 0 &&
+                this.emaBarCount > 0 &&
+                this.pivotCount > 0 &&
+                this.ticker.length > 0;
+            if(dataValid){ 
                 const data = await this.getTickerData(this.ticker, this.selectedRange);
                 this.$refs.chart.resetGraph();
                 await this.$nextTick();
@@ -197,35 +207,41 @@ export default {
         },
         selectedBoxSizingModel(model){
             this.$store.commit('setValue',{"selectedBoxSizingModel":model});
-            if(model=="traditional" || this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0 && this.reversalBoxCount && parseFloat(this.reversalBoxCount) > 0){
-                this.loadChartData();
-            }
+            this.loadChartData();
         },
         selectedBoxSizeValue(value){
             clearTimeout(this.boxSizeValueDebounce);
             this.boxSizeValueDebounce = setTimeout(()=>{
                 this.$store.commit('setValue',{"selectedBoxSizeValue":parseFloat(value)});
-                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.reversalBoxCount && parseFloat(this.reversalBoxCount) > 0){
-                    this.loadChartData();
-                } 
+                this.loadChartData();
             },300);
         },
         reversalBoxCount(value){
             clearTimeout(this.reversalBoxCountDebounce);
             this.reversalBoxCountDebounce = setTimeout(()=>{
                 this.$store.commit('setValue',{"reversalBoxCount":parseFloat(value)});
-                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0){
-                    this.loadChartData();
-                } 
+                this.loadChartData();
             },300);
         },
         emaBarCount(value){
             clearTimeout(this.emaBarCountDebounce);
             this.emaBarCountDebounce = setTimeout(()=>{
                 this.$store.commit('setValue',{"emaBarCount":parseFloat(value)});
-                if(this.selectedBoxSizingModel=="traditional" || value && value.length > 0 && parseFloat(value) > 0 && this.selectedBoxSizeValue && this.selectedBoxSizeValue.length > 0){
-                    this.loadChartData();
-                } 
+                this.loadChartData();
+            },300);
+        },
+        pivotCount(value){
+            clearTimeout(this.pivotCountDebounce);
+            this.pivotCountDebounce = setTimeout(()=>{
+                this.$store.commit('setValue',{"pivotCount":parseFloat(value)});
+                this.loadChartData();
+            },300);
+        },
+        atrLength(value){
+            clearTimeout(this.atrLengthDebounce);
+            this.atrLengthDebounce = setTimeout(()=>{
+                this.$store.commit('setValue',{"atrLength":parseFloat(value)});
+                this.loadChartData();
             },300);
         },
         traditionalBoxSizes:{
