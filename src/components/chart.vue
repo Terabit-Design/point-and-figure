@@ -495,17 +495,25 @@
                     closePrices[i] = (bar.direction == "X") ? priceHigh : priceLow;
                     lowPriceArray[i] = priceLow;
                     highPriceArray[i] = priceHigh;
+                    
                 });
-                for (let i = 0; i < this.bars.data.length; i+=pivotCount){
-                    const lastClosePrice = closePrices.slice(i, i + pivotCount + 1).pop();
-                    const highestPrice = Math.max(...highPriceArray.slice(i, i + pivotCount + 1));
-                    const lowestPrice = Math.min(...lowPriceArray.slice(i, i + pivotCount + 1))
-                    const pivotPoint = (highestPrice + lowestPrice + lastClosePrice) / 3;
-                    for(let j = i; (j <= i + pivotCount) && (j < this.bars.data.length); j++){
-                        pivotPoints[j] = pivotPoint;
-                        this.bars.data[j].meta.pivotPoint = pivotPoint;
-                    }
+                // Handling pivot point ranges
+                for (let i = 0; i < this.bars.data.length; i++){
+                    const highestPrice = Math.max(...highPriceArray.slice(i, i + pivotCount));
+                    const lowestPrice = Math.min(...lowPriceArray.slice(i, i + pivotCount));
+                    const closePrice = closePrices[i];
+                    
+                    pivotPoints[i] = (highestPrice + lowestPrice + closePrice) / 3;
                 }
+                console.log(pivotPoints);
+                for(let i = this.bars.data.length - 1; i > 0; i--){
+                    let sum = 0;
+                    for(let j = i; j > (i - pivotCount); j--){
+                        sum += pivotPoints[j];
+                    }
+                    this.bars.data[i].meta.pivotPoint = sum / pivotCount;
+                }
+                
                 const smoothing = 2 / (barCount + 1);
                 let smaClose = 0;
                 let smaLow = 0;
@@ -531,7 +539,6 @@
                    bar.meta.emaLow = emaLow[i];
                    bar.meta.emaHigh = emaHigh[i];
                 })
-                console.log(this.bars);
             },
             // Gets the nominal price for the box of a given price
             getCurrentBoxPrice(price){
@@ -541,7 +548,6 @@
             // Gets the size of a box for a given price
             getCurrentBoxSize(price){
                 const boxModel = this.$store.state.selectedBoxSizingModel;
-                console.log(boxModel);
                 let boxValue = this.$store.state.selectedBoxSizeValue;
 
                 if(boxValue > 0 || boxModel == 'atr'){ 

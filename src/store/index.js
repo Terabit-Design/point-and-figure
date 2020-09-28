@@ -6,10 +6,10 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     ticker:"",
-    // iexAPIKey:'Tpk_9951b4c0a965499f87e57c218a866e95',
-    // iexMode:"sandbox",
-    iexAPIKey:'pk_957d7702e4d34b1f801b1e88825b2280',
-    iexMode:"production",
+    iexAPIKey:'Tpk_9951b4c0a965499f87e57c218a866e95',
+    iexMode:"sandbox",
+    // iexAPIKey:'pk_957d7702e4d34b1f801b1e88825b2280',
+    // iexMode:"production",
     selectedBoxSizingModel:"user",
     selectedBoxSizeValue:null,
     reversalBoxCount:3,
