@@ -177,10 +177,11 @@ export default {
             return responseArray;
         },
         async loadChartData(){
+            const boxValue = this.selectedBoxSizeValue || this.atrLength;
             const dataValid = (this.selectedBoxSizeModel=="traditional" &&
                 this.traditionalBoxSizes.every((box)=>box.size > 0) || 
-                this.selectedBoxSizeValue && 
-                this.selectedBoxSizeValue > 0) &&
+                boxValue && 
+                boxValue > 0) &&
                 this.reversalBoxCount > 0 &&
                 this.emaBarCount > 0 &&
                 this.pivotCount > 0 &&
